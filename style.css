@@ -25,3 +25,85 @@ h2 {
   min-height: 400px;
 }
 
+#title-head {
+  text-align: center;
+}
+
+#title-head > h3 {
+  color: gray;
+}
+
+#year-controls {
+  text-align: center;
+  margin-bottom: 1em;
+}
+
+p {
+  margin: 1em;
+}
+
+#chart-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+#chart-modal.hidden {
+    display: none;
+}
+
+#chart-content {
+    background: white;
+    width: 70%;
+    max-width: 900px;
+    padding: 20px;
+    border-radius: 10px;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.close-btn {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    font-size: 26px;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+#metric-toggle {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.metric-btn {
+    padding: 8px 14px;
+    border: 1px solid #666;
+    border-radius: 5px;
+    cursor: pointer;
+    background: #eee;
+}
+
+.metric-btn.active {
+    background: #333;
+    color: white;
+}
+
+#state-chart {
+  width: 100%;
+  height: 600px;
+  display: block;
+}
+
+#note {
+  text-align: center;
+}

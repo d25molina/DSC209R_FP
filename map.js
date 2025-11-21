@@ -23,7 +23,13 @@ document.addEventListener('DOMContentLoaded', () => {
       [-55, 70],
     ],
   });
-  window.map = map;
+  //window.Map = map;
+
+  let csv_data = [];
+  let dataByYear = {};
+
+  let stateChart = null;
+  let activeMetric = "VEP";
 
   map.on('load', () => {
     map.addSource('states', {
@@ -79,10 +85,9 @@ document.addEventListener('DOMContentLoaded', () => {
     ])
 
     .then(([geojson, csvText]) => {
-      const csv = Papa.parse(csvText, { header: true }).data;
+      csv_data = Papa.parse(csvText, { header: true }).data;
 
-      const dataByYear = {};
-      csv.forEach(row => {
+      csv_data.forEach(row => {
         const year = row.YEAR;
         if (!dataByYear[year]) dataByYear[year] = {};
         if (row.STATE) dataByYear[year][row.STATE] = row;
@@ -130,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const lookup = {};
-      csv.forEach(row => {
+      csv_data.forEach(row => {
         if (row.STATE) lookup[row.STATE] = row;
       });
 
@@ -180,6 +185,116 @@ document.addEventListener('DOMContentLoaded', () => {
         map.getCanvas().style.cursor = '';
         popup.remove();
       });
+      map.on('click', 'states-fill', (e) => {
+        const feature = e.features?.[0];
+        if (!feature) return;
+
+        const stateName = feature.properties.NAME;
+        openChartForState(stateName);
+      });
+
+      /* ---------- BUILD DATASET FOR SELECTED STATE ---------- */
+      function extractStateTimeline(stateName) {
+        const years = Object.keys(dataByYear).sort();
+        const vep = [];
+        const turnout = [];
+
+        years.forEach(year => {
+          const row = dataByYear[year][stateName];
+          if (row) {
+            vep.push(Number(row.VEP) || null);
+            turnout.push(Number(row.VEP_TURNOUT_RATE) || null);
+          } else {
+            vep.push(null);
+            turnout.push(null);
+          }
+        });
+
+        return { years, vep, turnout };
+      }
+
+      /* ---------- OPEN MODAL + DRAW CHART ---------- */
+      function openChartForState(stateName) {
+        const modal = document.getElementById("chart-modal");
+        const title = document.getElementById("chart-title");
+        title.textContent = stateName;
+        modal.classList.remove("hidden");
+
+        const { years, vep, turnout } = extractStateTimeline(stateName);
+
+        drawChart(years, vep, turnout);
+      }
+
+      /* ---------- TOGGLE HANDLER ---------- */
+      document.getElementById("toggle-vep").addEventListener("click", () => {
+        activeMetric = "VEP";
+        updateActiveButtons();
+        refreshMetric();
+      });
+
+      document.getElementById("toggle-turnout").addEventListener("click", () => {
+        activeMetric = "TURNOUT";
+        updateActiveButtons();
+        refreshMetric();
+      });
+
+      function updateActiveButtons() {
+        document.getElementById("toggle-vep").classList.toggle("active", activeMetric === "VEP");
+        document.getElementById("toggle-turnout").classList.toggle("active", activeMetric === "TURNOUT");
+      }
+
+      /* ---------- REDRAW CHART ON TOGGLE ---------- */
+      function refreshMetric() {
+        const stateName = document.getElementById("chart-title").textContent;
+        const { years, vep, turnout } = extractStateTimeline(stateName);
+        drawChart(years, vep, turnout);
+      }
+
+
+      /* ---------- DRAW CHART ---------- */
+      function drawChart(years, vepData, turnoutData) {
+        const ctx = document.getElementById('state-chart');
+
+        if (stateChart) stateChart.destroy();
+
+        let dataset;
+
+        if (activeMetric === "VEP") {
+          dataset = {
+            label: "Voting Eligible Population",
+            data: vepData,
+            borderWidth: 2
+          };
+        } else {
+          dataset = {
+            label: "Turnout Rate (%)",
+            data: turnoutData,
+            borderWidth: 2
+          };
+        }
+
+        stateChart = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: years,
+            datasets: [dataset]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: false
+              }
+            }
+          }
+        });
+      }
+
+      /* ---------- CLOSE BUTTON ---------- */
+      document.getElementById("close-chart").addEventListener("click", () => {
+        document.getElementById("chart-modal").classList.add("hidden");
+      });
     });
   });
 });
+

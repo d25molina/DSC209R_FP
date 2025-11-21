@@ -10,17 +10,43 @@
     <!-- Mapbox GL JS CSS -->
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet"/>
 
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
     <script src="map.js" type="module"></script>
 </head>
 <body>
+    <div id = "title-head">
     <h2>Inspecting U.S. Voter Turnout</h2>
+    <h3><i>a project by Matt Zidell, Jacob Sease, and Dimas Molina</i></h3>
+    </div>
+    <p style="text-indent: 2em;">
+        The citizens of the United States of America have the privilege of making their voice heard in the country's democracy by casting votes for elected officials that represent them at Washington D.C.
+        As alluded to, not every one has that privilege, such as those under 18 years old and those who are non-citizens. This article only analyzes the voting eligible population (VEP), those who are eligible to cast votes, 
+        and their turnout rate from 1980 to 2022. Take a look below, select an election year with our slider, and hover over any state to see for yourself how a state's VEP and turnout rate has varied by year (zoom in with 
+        your mousepad to see states that are smaller):  
+    </p>
+    <p id = "note"><i>**Note: You can also click on each state to see the trends over the years**</i></p>
     <div id = "year-controls">
         <label id = "year-filter"> Year:</label>
         <input type="range" id="year-slider" min="1980" max="2022" step="2" value="1980">
         <span id="year-value">1980</span>
     </div>
     <div id="map"></div>
+    <div id="chart-modal" class="hidden">
+    <div id="chart-content">
+        <button id="close-chart" class="close-btn">&times;</button>
+
+        <h2 id="chart-title">State Name</h2>
+
+        <!-- Metric toggle -->
+        <div id="metric-toggle">
+            <button id="toggle-vep" class="metric-btn active">VEP</button>
+            <button id="toggle-turnout" class="metric-btn">Turnout Rate</button>
+        </div>
+
+        <!-- Chart canvas -->
+        <canvas id="state-chart"></canvas>
+    </div>
+</div>
 </body>
 </html>
