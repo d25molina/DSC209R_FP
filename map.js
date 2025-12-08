@@ -23,7 +23,24 @@ document.addEventListener('DOMContentLoaded', () => {
       [-55, 70],
     ],
   });
-  //window.Map = map;
+
+  const presidentialYears = new Set([
+  1980, 1984, 1988, 1992, 1996,
+  2000, 2004, 2008, 2012, 2016, 2020]);
+
+  // Key historical events that affected turnout nationally
+  const turnoutEvents = {
+  1994: { label: "Motor Voter Act (1993)" },
+  2002: { label: "Help America Vote Act (2002)" },
+  2008: { label: "Obama Election (2008)" },
+  2014: { label: "Shelby v. Holder (2013)" },
+  2016: { label: "Polarized Election: Clinton v Trump (2016)" },
+  2020: { label: "COVID-19 Voting Expansion (2020)" }
+  };
+
+  // Colors to highlight event points
+  const eventColor = "purple";
+  const defaultPointColor = "steelblue";
 
   let csv_data = [];
   let dataByYear = {};
@@ -250,37 +267,81 @@ document.addEventListener('DOMContentLoaded', () => {
         drawChart(years, vep, turnout);
       }
 
+      /* ---------- ELECTION TYPE TOGGLE ---------- */
+      document.getElementById("split-turnout").addEventListener("change", () => {
+      if (activeMetric === "TURNOUT") refreshMetric();
+      });
 
       /* ---------- DRAW CHART ---------- */
       function drawChart(years, vepData, turnoutData) {
         const ctx = document.getElementById('state-chart');
+        const split = document.getElementById("split-turnout")?.checked || false;
 
         if (stateChart) stateChart.destroy();
 
-        let dataset;
+        let datasets =[];
 
         if (activeMetric === "VEP") {
-          dataset = {
+          datasets = [{
             label: "Voting Eligible Population",
             data: vepData,
             borderWidth: 2
-          };
+          }];
         } else {
-          dataset = {
-            label: "Turnout Rate (%)",
-            data: turnoutData,
-            borderWidth: 2
-          };
+          if (!split) {
+            const pointColors = years.map((yr, idx) =>
+            turnoutEvents[yr] ? eventColor : defaultPointColor
+            );
+            datasets = [{
+              label: "Turnout Rate (%)",
+              data: turnoutData,
+              pointBackgroundColor: pointColors,
+              pointRadius: years.map((yr) => turnoutEvents[yr] ? 6 : 3),
+              pointHoverRadius: 8,
+              borderWidth: 2}];
+          }
+          else {
+            const presidentialData = turnoutData.map((value, index) => 
+            presidentialYears.has(Number(years[index])) ? value : null);
+            const midtermData = turnoutData.map((value, index) => 
+            !presidentialYears.has(Number(years[index])) ? value : null);
+            datasets = [
+              {
+                label: "Presidential Election Turnout Rate (%)",
+                data: presidentialData,
+                borderWidth: 2,
+                spanGaps: true
+              },
+              {
+                label: "Midterm Election Turnout Rate (%)",
+                data: midtermData,
+                borderWidth: 2,
+                spanGaps: true
+              }
+            ];
+          }
         }
 
         stateChart = new Chart(ctx, {
           type: "line",
           data: {
-            labels: years,
-            datasets: [dataset]
+            labels: years, datasets
           },
           options: {
             responsive: true,
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  afterLabel: function(context) {
+                    const year = Number(context.label);
+                    if (turnoutEvents[year]) {
+                      return `Event: ${turnoutEvents[year].label}`;
+                    }
+                    return "";
+                  }
+                }
+              }
+            },
             scales: {
               y: {
                 beginAtZero: false
@@ -292,9 +353,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       /* ---------- CLOSE BUTTON ---------- */
       document.getElementById("close-chart").addEventListener("click", () => {
-        document.getElementById("chart-modal").classList.add("hidden");
+      document.getElementById("chart-modal").classList.add("hidden");
       });
     });
   });
 });
-

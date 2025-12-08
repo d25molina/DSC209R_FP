@@ -18,12 +18,18 @@
     <div id = "title-head">
     <h2>Inspecting U.S. Voter Turnout</h2>
     <h3><i>a project by Matt Zidell, Jacob Sease, and Dimas Molina</i></h3>
+    <img src = "voting.jpg">
+    <h3>Image source: https://news.stanford.edu/stories/2022/10/drives-american-voters</h3>
     </div>
     <p style="text-indent: 2em;">
-        The citizens of the United States of America have the privilege of making their voice heard in the country's democracy by casting votes for elected officials that represent them in Washington D.C.
-        As alluded to, not every one has that privilege, such as those under 18 years old and those who are non-citizens. This article only analyzes the voting eligible population (VEP), those who are eligible to cast votes, 
-        and their turnout rate from 1980 to 2022. Take a look below, select an election year with our slider, and hover over any state to see for yourself how a state's VEP and turnout rate has varied by year (zoom in with 
-        your mousepad to see states that are smaller):  
+        The Pew Research Center reported that the two most recent U.S. presidential elections were among 
+        the highest-turnout elections in the past century, with about 66% turnout in 2020 and 64% in 2024. 
+        But those national numbers hide the real story: turnout varies by state and shifts in surprising 
+        ways over time. Also, turnout rates swing largely between presidential election years vs state level
+        elections. We wanted to understand these trends, and what long-term patterns emerge when we look beyond
+        a single election. These questions motivated our project. Take a look below, select an election year with
+        our slider, and hover over any state to see for yourself how a state's VEP and turnout rate has varied by 
+        year (zoom in with your mousepad to see states that are smaller):  
     </p>
     <p id = "note"><i>**Note: You can also click on each state to see the trends over the years**</i></p>
     <div id = "year-controls">
@@ -46,6 +52,9 @@
 
         <!-- Chart canvas -->
         <canvas id="state-chart"></canvas>
+        <div id="election-type-toggle">
+            <label><input type="checkbox" id="split-turnout"> Split presidential vs midterm</label>
+        </div>
     </div>
 </div>
 <h2>Write-up</h2>
@@ -67,5 +76,11 @@
     Ultimately, our challenge lies in making the interface feel effortless for readers, even though the design
     work behind it is complex. <br><br>
 </p>
+<div id="takeaway-box">
+    <h3>Key Takeaway</h3>
+    <p>
+        Voting eligible population (VEP) and VEP turnout rate do not move together.
+    </p>
+</div>
 </body>
 </html>
